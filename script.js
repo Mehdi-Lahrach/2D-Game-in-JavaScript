@@ -6,6 +6,7 @@ canvas.width = innerWidth
 canvas.height = innerHeight
 
 const scoreEL = document.querySelector('#scoreEL')
+const highScore = document.querySelector('#highScore')
 const startGameBtn = document.querySelector('#startGameBtn')
 const modelEl = document.querySelector('#modelEl')
 const scoreH1 = document.querySelector('#scoreH1')
@@ -130,7 +131,7 @@ function spawnEnemies(){
         const color = `hsl(${Math.random()*360}, 50%, 50%`
         const angle = Math.atan2(canvas.height/2 -y, canvas.width/2 -x)
         const velocity ={
-        x:Math.cos(angle) ,
+        x:Math.cos(angle)  ,
         y:Math.sin(angle) 
         }
         enemies.push(new Enemy(x, y ,radius, color,velocity))
@@ -138,6 +139,7 @@ function spawnEnemies(){
 }
 let animationId
 let score = 0
+let highScoreVar = 0
 function animate() { 
     animationId = requestAnimationFrame(animate)
     c.fillStyle = 'rgba(0, 0, 0, 0.1)'
@@ -174,6 +176,10 @@ function animate() {
         if (dist -enemy.radius-player.radius < 1) {
             cancelAnimationFrame(animationId)
             scoreH1.innerHTML =score
+            if (score > highScoreVar) {
+                highScoreVar =score
+                highScore.innerHTML = score
+            }
             modelEl.style.display ='flex'
         }
         projectiles.forEach((projectile , projectileIndex) =>{

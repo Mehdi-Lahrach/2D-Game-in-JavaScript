@@ -11,6 +11,21 @@ const startGameBtn = document.querySelector('#startGameBtn')
 const modelEl = document.querySelector('#modelEl')
 const scoreH1 = document.querySelector('#scoreH1')
 
+var music = {
+    overworld: new Howl({
+        src: ['Music/Powerup.mp3']
+    })
+}
+
+var sfx = {
+    lasershoot: new Howl({
+        src: ['Music/Laser-Gun.mp3']
+    }),
+    enemyExplode: new Howl({
+        src: ['Music/Explode.wav']
+    })
+}
+sfx.lasershoot.mute(true)
 class Player{
     constructor(x,y,radius,color){
         this.x =x
@@ -181,6 +196,10 @@ function animate() {
                 highScore.innerHTML = score
             }
             modelEl.style.display ='flex'
+
+            //sounds configuration
+            music.overworld.stop();
+            sfx.lasershoot.mute(true);
         }
         projectiles.forEach((projectile , projectileIndex) =>{
             const dist = Math.hypot(projectile.x -enemy.x, projectile.y-enemy.y)
@@ -208,6 +227,9 @@ function animate() {
                      },0)
                 }else{
                  //enemy removed from screen
+
+                 //play explosion sound
+                 sfx.enemyExplode.play()
                  score += 200
                  scoreEL.innerHTML = score
                      setTimeout(()=>{
@@ -222,7 +244,7 @@ function animate() {
 }
 
 addEventListener('click', (event) =>{
-
+  
   const angle = Math.atan2(event.clientY - canvas.height/2, event.clientX-canvas.width/2)
 
   const velocity ={
@@ -232,7 +254,9 @@ addEventListener('click', (event) =>{
   }
 
   projectiles.push( new Projectile(canvas.width/2 , canvas.height/2 , 5 ,'white',velocity))
-  
+
+  sfx.lasershoot.play();
+
 })
 
 startGameBtn.addEventListener('click' , ()=> {
@@ -240,5 +264,11 @@ startGameBtn.addEventListener('click' , ()=> {
     animate()
     spawnEnemies()
     modelEl.style.display ='none'
+    //play music
+    if (!music.overworld.playing()) {
+        music.overworld.play();
+    }    
+    sfx.lasershoot.mute(false);
+
 })
 

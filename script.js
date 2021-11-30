@@ -23,9 +23,21 @@ var sfx = {
     }),
     enemyExplode: new Howl({
         src: ['Music/Explode.wav']
+    }),
+    enemyHit: new Howl({
+        src: ['Music/EnemyHitSound1.wav']
+    }),
+    enemyHit2: new Howl({
+        src: ['Music/EnemyHitSound2.wav']
+    }),
+    gotHitByEnemySound: new Howl({
+        src: ['Music/GotHitByEnemy.wav']
     })
 }
 sfx.lasershoot.mute(true)
+
+
+
 class Player{
     constructor(x,y,radius,color){
         this.x =x
@@ -70,13 +82,14 @@ let player = new Player(x,y,10, 'white')
 let enemies = []
 let projectiles = []
 let particles = []
-
+let speedOfTheGame 
 function init() {
      player = new Player(x,y,10, 'white')
      enemies = []
      projectiles = []
      particles = []
      score =0
+     speedOfTheGame = 1000
      scoreEL.innerHTML =score
      scoreH1.innerHTML =score
 }
@@ -129,7 +142,9 @@ class  Particle{
         this.alpha -= 0.01
     }
 }
+let enemySpeed;
 function spawnEnemies(){
+    
     setInterval(() => {
         const radius = Math.random() * (30-4)+4
         let x
@@ -145,16 +160,20 @@ function spawnEnemies(){
        
         const color = `hsl(${Math.random()*360}, 50%, 50%`
         const angle = Math.atan2(canvas.height/2 -y, canvas.width/2 -x)
+
+        //increasse for monster to go fast
         const velocity ={
         x:Math.cos(angle)  ,
         y:Math.sin(angle) 
         }
         enemies.push(new Enemy(x, y ,radius, color,velocity))
-    },1000)
+    },speedOfTheGame)
+    console.log(speedOfTheGame)
 }
 let animationId
 let score = 0
 let highScoreVar = 0
+
 function animate() { 
     animationId = requestAnimationFrame(animate)
     c.fillStyle = 'rgba(0, 0, 0, 0.1)'
@@ -183,12 +202,21 @@ function animate() {
              },0)   
         }
     })
+
     //loop in enemies
     enemies.forEach((enemy , index) => {
         enemy.update()
-        const dist = Math.hypot(player.x -enemy.x, player.y-enemy.y)
+        const dist = Math.hypot(player.x-enemy.x, player.y-enemy.y)
+
         //end game
         if (dist -enemy.radius-player.radius < 1) {
+            //play death sound
+            sfx.gotHitByEnemySound.play()
+            
+            //stop sponing enemies
+            enemies = []
+
+
             cancelAnimationFrame(animationId)
             scoreH1.innerHTML =score
             if (score > highScoreVar) {
@@ -213,12 +241,21 @@ function animate() {
                     {x:(Math.random()-0.5) * 6, 
                     y: (Math.random()-0.5) *6 }))
                 }
-
+                //enemy is big
                 if (enemy.radius - 10 > 5) {
+                    //play hit sound
+                    if (Math.random() > 0.5) {
+                        sfx.enemyHit.play()
+                    }else{
+                        sfx.enemyHit2.play()
+                    }
                      //increase our score
                     score +=100
                     scoreEL.innerHTML = score
-                    
+
+                    //decreasse speed of spawning the enemyes
+                    speedOfTheGame += Math.random()
+
                     gsap.to(enemy, {
                         radius: enemy.radius - 10
                     })
@@ -230,8 +267,14 @@ function animate() {
 
                  //play explosion sound
                  sfx.enemyExplode.play()
+                 
+                 //increasse speed of spawning the enemyes
+                 speedOfTheGame -= Math.random()*(10-1)+1
+                 
+                 console.log(speedOfTheGame)
                  score += 200
                  scoreEL.innerHTML = score
+                 
                      setTimeout(()=>{
                 enemies.splice(index,1)
                 projectiles.splice(projectileIndex,1)

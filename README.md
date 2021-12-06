@@ -3,6 +3,7 @@
 A 2d game using JavaScript Html canvas and css
 
 **game description**
+<br>
 An endless game the player is a white circle on the middle of the screen your enemies are circles with diffrent colors and sizes they are trying to infect you  ,dont let them get to you, shoot them to destroy them ,you get 100pts 
 on damage and 200 pts on destroy ,break the highset record.<br>
 
